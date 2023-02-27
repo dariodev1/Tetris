@@ -23,7 +23,7 @@ namespace Tetris.Core
         public GameGrid GameGrid { get; }
 
         public BlockQueue BlockQueue { get; }
-        public bool GameOver { get; }
+        public bool GameOver { get; set; }
 
 
         public GameState()
@@ -83,6 +83,41 @@ namespace Tetris.Core
             if (!BlockFits())
             {
                 CurrentBlock.Move(0, -1);
+            }
+        }
+
+        private bool IsGameOver()
+        {
+            return !(GameGrid.IsRowEmpty(0) && GameGrid.IsRowEmpty(0));
+        }
+
+        private void PlaceBlock()
+        {
+            foreach (Position position in CurrentBlock.TilePositions())
+            {
+                GameGrid[position.Row, position.Column] = CurrentBlock.Id;
+            }
+
+            GameGrid.ClearFullRows();
+
+            if (IsGameOver())
+            {
+                GameOver = true;
+            }
+            else
+            {
+                CurrentBlock = BlockQueue.GetAndUpdate();
+            }
+        }
+
+        public void MoveBlockDown()
+        {
+            CurrentBlock.Move(1, 0);
+
+            if (!BlockFits())
+            {
+                CurrentBlock.Move(-1, 0);
+                PlaceBlock();
             }
         }
     }
